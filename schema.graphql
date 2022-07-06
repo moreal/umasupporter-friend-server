@@ -1,0 +1,62 @@
+type Friend {
+    kakao_id: Int
+    friend_code: Int!
+    support_kind: Int!
+    support_level: Int!
+    support_img: String!
+    support_name: String!
+    comment: String!
+
+    umamusume: Umamusume!
+    parent1: Umamusume!
+    parent2: Umamusume!
+}
+
+type Umamusume {
+    kind: Int!
+    kind_name: String!
+    status_kind: Status!
+    status_star: Star!
+    status_name: String!
+    aptitude_kind: Aptitude!
+    aptitude_star: Star!
+    aptitude_name: String!
+    unique_skill_kind: Int
+    unique_skill_star: Star
+    unique_skill_name: String
+    img: String!
+    traits: [Trait]
+}
+
+type Trait {
+    trait_id: Int!
+    trait_star: Star!
+    trait_name: String!
+}
+
+enum Status {
+    SPEED
+    STAMINA
+    POWER
+    GUTS
+    WISDOM
+}
+
+enum Aptitude {
+    TURF
+    DIRT
+    SHORT
+    MILE
+    MEDIUM
+    LONG
+    RUNNER
+    LEADER
+    BETWEENER
+    CHASER
+}
+
+enum Star {
+    _1
+    _2
+    _3
+}
