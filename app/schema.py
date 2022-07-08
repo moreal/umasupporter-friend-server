@@ -148,11 +148,6 @@ class Query:
         friends = await models.Friend.objects.select_all(True).all()
         return [await convert_friend_model_to_friend_type(friend) for friend in list(friends)]
 
-    @strawberry.field
-    async def umamusumes(self) -> typing.List[Umamusume]:
-        umamusumes = await models.Umamusume.objects.all()
-        return [await convert_umamusume_model_to_umamusume_type(umamusume) for umamusume in umamusumes]
-
 
 @strawberry.type
 class Mutation:
