@@ -105,47 +105,50 @@ class AddFriendInput:
     parent2: UmamusumeInput
 
 
-async def convert_umamusume_model_to_umamusume_type(
-    umamusume: models.Umamusume,
-) -> Umamusume:
-    await umamusume.load()
+class GraphQLTypeBuilder:
 
-    return Umamusume(
-        kind=umamusume.kind,
-        kind_name=find_umamusume_name(umamusume.kind),
-        status_kind=umamusume.status_kind,
-        status_star=umamusume.status_star,
-        status_name=umamusume.status_kind.value,
-        aptitude_kind=umamusume.aptitude_kind,
-        aptitude_star=umamusume.aptitude_star,
-        aptitude_name=umamusume.aptitude_kind.value,
-        unique_skill_kind=umamusume.unique_skill_kind,
-        unique_skill_star=umamusume.unique_skill_star,
-        unique_skill_name=find_unique_skill_name(umamusume.unique_skill_kind),
-        img=find_umamusume_image_url(umamusume.kind),
-        traits=umamusume.trait_informations,
-    )
+    async def convert_umamusume_model_to_umamusume_type(
+        self,
+        umamusume: models.Umamusume,
+    ) -> Umamusume:
+        await umamusume.load()
+
+        return Umamusume(
+            kind=umamusume.kind,
+            kind_name=find_umamusume_name(umamusume.kind),
+            status_kind=umamusume.status_kind,
+            status_star=umamusume.status_star,
+            status_name=umamusume.status_kind.value,
+            aptitude_kind=umamusume.aptitude_kind,
+            aptitude_star=umamusume.aptitude_star,
+            aptitude_name=umamusume.aptitude_kind.value,
+            unique_skill_kind=umamusume.unique_skill_kind,
+            unique_skill_star=umamusume.unique_skill_star,
+            unique_skill_name=find_unique_skill_name(umamusume.unique_skill_kind),
+            img=find_umamusume_image_url(umamusume.kind),
+            traits=umamusume.trait_informations,
+        )
 
 
-async def convert_friend_model_to_friend_type(friend: models.Friend) -> Friend:
-    await friend.load_all()
+    async def convert_friend_model_to_friend_type(self, friend: models.Friend) -> Friend:
+        await friend.load_all()
 
-    return Friend(
-        kakao_id=friend.kakao_id,
-        friend_code=friend.friend_code,
-        support_kind=friend.support_kind,
-        support_level=friend.support_level,
-        comment=friend.comment,
-        umamusume=await convert_umamusume_model_to_umamusume_type(
-            next(filter(lambda x: x.location == UmamusumeLocation.Child, friend.umamusumes))
-        ),
-        parent1=await convert_umamusume_model_to_umamusume_type(
-            next(filter(lambda x: x.location == UmamusumeLocation.Parent1, friend.umamusumes))
-        ),
-        parent2=await convert_umamusume_model_to_umamusume_type(
-            next(filter(lambda x: x.location == UmamusumeLocation.Parent2, friend.umamusumes))
-        ),
-    )
+        return Friend(
+            kakao_id=friend.kakao_id,
+            friend_code=friend.friend_code,
+            support_kind=friend.support_kind,
+            support_level=friend.support_level,
+            comment=friend.comment,
+            umamusume=await self.convert_umamusume_model_to_umamusume_type(
+                next(filter(lambda x: x.location == UmamusumeLocation.Child, friend.umamusumes))
+            ),
+            parent1=await self.convert_umamusume_model_to_umamusume_type(
+                next(filter(lambda x: x.location == UmamusumeLocation.Parent1, friend.umamusumes))
+            ),
+            parent2=await self.convert_umamusume_model_to_umamusume_type(
+                next(filter(lambda x: x.location == UmamusumeLocation.Parent2, friend.umamusumes))
+            ),
+        )
 
 
 @strawberry.type
@@ -202,6 +205,8 @@ class Query:
 
         return friends
 
+
+import strawberry.types
 
 @strawberry.type
 class Mutation:
