@@ -60,6 +60,21 @@ class Friend:
 
 
 @strawberry.input
+class StatusFilterInput:
+    kind: Status
+
+
+@strawberry.input
+class AptitudeFilterInput:
+    kind: Aptitude
+
+
+@strawberry.input
+class UniqueSkillFilterInput:
+    kind: int
+
+
+@strawberry.input
 class TraitInput:
     trait_id: int
     trait_star: Star
@@ -144,9 +159,48 @@ class Query:
         return await convert_friend_model_to_friend_type(friend=friend)
 
     @strawberry.field
-    async def friends(self) -> typing.List[Friend]:
-        friends = await models.Friend.objects.select_all(True).all()
-        return [await convert_friend_model_to_friend_type(friend) for friend in list(friends)]
+    async def friends(
+        self,
+        status_filters: typing.Optional[typing.List[StatusFilterInput]] = None,
+        aptitude_filters: typing.Optional[typing.List[AptitudeFilterInput]] = None,
+        unique_skill_filters: typing.Optional[typing.List[UniqueSkillFilterInput]] = None,
+    ) -> typing.List[Friend]:
+        friend_models = await models.Friend.objects.select_all(True).all()
+        friends = [await convert_friend_model_to_friend_type(friend) for friend in list(friend_models)]
+
+        if unique_skill_filters is not None:
+            for unique_skill_filter in unique_skill_filters:
+                friends = list(
+                    filter(
+                        lambda x: x.umamusume.unique_skill_kind == unique_skill_filter.kind
+                        or x.parent1.unique_skill_kind == unique_skill_filter.kind
+                        or x.parent2.unique_skill_kind == unique_skill_filter.kind,
+                        friends,
+                    )
+                )
+        if status_filters is not None:
+            for status_filter in status_filters:
+                friends = list(
+                    filter(
+                        lambda x: x.umamusume.status_kind == status_filter.kind
+                        or x.parent1.status_kind == status_filter.kind
+                        or x.parent2.status_kind == status_filter.kind,
+                        friends,
+                    )
+                )
+
+        if aptitude_filters is not None:
+            for aptitude_filter in aptitude_filters:
+                friends = list(
+                    filter(
+                        lambda x: x.umamusume.aptitude_kind == aptitude_filter.kind
+                        or x.parent1.aptitude_kind == aptitude_filter.kind
+                        or x.parent2.aptitude_kind == aptitude_filter.kind,
+                        friends,
+                    )
+                )
+
+        return friends
 
 
 @strawberry.type
